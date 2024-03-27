@@ -67,7 +67,7 @@ class Cache:
 
     def __init__(self) -> None:
         """init method"""
-        self._redis = redis.Redis()
+        self._redis = redis.Redis(host="localhost", port=6379, db=0)
         self._redis.flushdb()
 
     @call_history
