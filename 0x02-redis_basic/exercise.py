@@ -21,5 +21,5 @@ class Cache:
         using the random key and return the key
         """
         key = str(uuid.uuid4())
-        self._redis.set(key, data)
+        self._redis.mset({key: data})
         return key
