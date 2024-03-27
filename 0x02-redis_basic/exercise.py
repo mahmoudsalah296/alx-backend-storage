@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""redis basic"""
-
-
+"""Module declares a redis class and methods"""
 import redis
-import uuid
+from uuid import uuid4
 from typing import Union, Callable, Optional
 from functools import wraps
-
-types = Union[str, float, int, bytes]
 
 
 def count_calls(method: Callable) -> Callable:
@@ -63,30 +59,29 @@ def replay(fn: Callable):
 
 
 class Cache:
-    """Cache Class"""
+    """declares a Cache redis class"""
 
-    def __init__(self) -> None:
-        """init method"""
+    def __init__(self):
+        """upon init to store an instance and flush"""
         self._redis = redis.Redis(host="localhost", port=6379, db=0)
         self._redis.flushdb()
 
     @call_history
     @count_calls
-    def store(self, data: types) -> str:
-        """
-        generate a random key using uuid, store the input data in Redis
-        using the random key and return the key
-        """
-        key = str(uuid.uuid4())
-        self._redis.set(key, data)
-        return key
+    def store(self, data: Union[str, bytes, int, float]) -> str:
+        """takes a data argument and returns a string"""
+        rkey = str(uuid4())
+        self._redis.set(rkey, data)
+        return rkey
 
-    def get(self, key, fn):
+    def get(
+        self, key: str, fn: Optional[Callable] = None
+    ) -> Union[str, bytes, int, float]:
         """convert the data back to the desired format"""
-        val = self._redis.get(key)
+        value = self._redis.get(key)
         if fn:
-            val = fn(val)
-        return val
+            value = fn(value)
+        return value
 
     def get_str(self, key: str) -> str:
         """parametrize Cache.get with correct conversion function"""
